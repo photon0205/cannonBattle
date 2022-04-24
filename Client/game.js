@@ -1,7 +1,53 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js";
+import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyD7ne0LD3U8RCE97zndPXSwmWnNjYcYrpw",
+  authDomain: "cannonbattle-85205.firebaseapp.com",
+  projectId: "cannonbattle-85205",
+  storageBucket: "cannonbattle-85205.appspot.com",
+  messagingSenderId: "142236860159",
+  appId: "1:142236860159:web:922e4b0296db52934456ca",
+  measurementId: "G-3PVBRG86YD"
+};
 
+const app = initializeApp(firebaseConfig);
+const database = getFirestore(app);
+
+const saveHighScore=()=>{
+    database.collection('highscore').
+    add({
+        highscore : highscore
+    })
+    .then(()=>{
+        console.log('Data Submitted');
+    })
+}
+const getHighScore=()=>{
+    database.collection('highscore').get()
+    .then((response)=>{
+        console.log(response.docs.map((item)=>{
+            return item,data();
+        }));
+        highscore = response.docs.map((item)=>{
+            return item,data();
+        })
+        document.getElementById('highscore').innerHTML = highscore;
+        console.log('High Score = '+highscore);
+    })
+}
+function f1(){
+    document.getElementById('user1').hidden = true;
+    document.getElementById('user2').hidden = true;
+    user =1;
+}
+function f2(){
+    document.getElementById('user1').hidden = true;
+    document.getElementById('user2').hidden = true;
+    user =2;
+}
 
 var canvas = document.getElementById('canvas');
-var user;
+var user, highscore;
 var u1 = canvas.getContext('2d');
 var v1 = canvas.getContext('2d');
 var y1=0,x1=0,t;
@@ -199,13 +245,12 @@ function animate1() {
     }
 }
 
-function f1(){
-    document.getElementById("user1").hidden = "true";
-    document.getElementById("user2").hidden = "true";
-    user = 1;
-}
-function f2(){
-    document.getElementById("user1").hidden = "true";
-    document.getElementById("user2").hidden = "true";
-    user = 2;
-}
+
+var Timer = setInterval(function () {
+    if (timeleft <= 0) {
+        if(score1 > highscore) {
+            saveHighScore();
+        }
+    }
+    timeleft -= 1;
+}, 30000);
