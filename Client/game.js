@@ -1,3 +1,5 @@
+
+
 var canvas = document.getElementById('canvas');
 var user;
 var u1 = canvas.getContext('2d');
@@ -8,13 +10,12 @@ var u2 = canvas.getContext('2d');
 var ball1 = canvas.getContext('2d');
 var ball2 = canvas.getContext('2d');
 var y2=0,x2=0;
-var angle1=0,angle2=0;
-var angle21=0,angle22=0;
+var angle1=0,angle2=0,score1=0,score2=0;
 u1.fillRect(0,y1, 10, 100)
 v1.fillRect(5,(50+y1),50,10)
 u2.fillRect(1000-10, y2, 10, 100)
 v2.fillRect(1000-50,(50+y2),50,10)
-var now,then;
+var now,then,ball1x,ball1y,ball2x,ball2y;
 
 const writex1 = (text) =>{
     x1=text;
@@ -40,12 +41,28 @@ const writeangle2 = (text) =>{
     angle2=text;
     update();
 }
-const writeangle21 = (text) =>{
-    angle21=text;
+const writeball1x = (text) =>{
+    ball1x= text;
     update();
 }
-const writeangle22 = (text) =>{
-    angle22=text;
+const writeball1y = (text) =>{
+    ball1y= text;
+    update();
+}
+const writeball2x = (text) =>{
+    ball2x= text;
+    update();
+}
+const writeball2y = (text) =>{
+    ball2y= text;
+    update();
+}
+const writescore1 = (text) =>{
+    score1= text;
+    update();
+}
+const writescore2 = (text) =>{
+    score2= text;
     update();
 }
 
@@ -56,8 +73,12 @@ sock.on('rx2',writex2)
 sock.on('ry2',writey2)
 sock.on('angle1',writeangle1)
 sock.on('angle2',writeangle2)
-sock.on('angle21',writeangle21)
-sock.on('angle22',writeangle22)
+sock.on('ball2x',writeball2x)
+sock.on('ball2y',writeball2y)
+sock.on('ball1x',writeball1x)
+sock.on('ball1y',writeball1y)
+sock.on('score1',writescore1)
+sock.on('score2',writescore2)
 
 function update(){
     canvas.width = canvas.width
@@ -66,45 +87,47 @@ function update(){
     v1.rotate(angle1*Math.PI/180)
     v1.fillRect(x1,0,50,10) 
     v1.rotate(-angle1*Math.PI/180)
-    v1.translate(0,0)
-    u2.fillRect(1000-10-5,y2, 10, 100)
+    v1.setTransform(1, 0, 0, 1, 0, 0);
+    u2.fillRect(1000-10,y2, 10, 100)
     v2.translate(1000,50+y2)
-    v2.rotate(angle21*Math.PI/180)
+    v2.rotate(angle2*Math.PI/180)
     v2.fillRect(x2-50,0,50,10) 
+    v2.rotate(-angle2*Math.PI/180)
+    v2.setTransform(1, 0, 0, 1, 0, 0);
+    ball1.arc(ball1x,ball1y, 5, 0 , 2 * Math.PI);
+    ball1.fill();
+    ball2.arc(ball2x,ball2y, 5, 0 , 2 * Math.PI);
+    ball2.fill();
+    document.getElementById('score1').innerHTML=score1;
+    document.getElementById('score2').innerHTML=score2;
+
 }
 
 document.addEventListener('keydown', (e) => {
     console.log(user);
     if(e.key=='ArrowUp' && user == 1){
         y1-=20;
-        y2+=20;
     }else if(e.key=='ArrowUp' && user == 2){
         y2-=20;
     }
     if(e.key=='ArrowDown' && user == 1){
-        y1+=20;    
-        y2-=20;
+        y1+=20;  
     }else if(e.key=='ArrowDown' && user == 2){
         y2+=20;    
     }
     if(e.key=='w' && user == 1){
         angle1-=10;
-        angle2-=1;
     }else if(e.key=='w' && user == 2){
-        angle21+=10;
-        angle22+=1;
+        angle2+=10;
     }
     if(e.key=='s' && user == 1){
         angle1+=10;
-        angle2+=1; 
     }else if(e.key=='s' && user == 2){
-        angle21-=10;
-        angle22-=1; 
+        angle2-=10;
     }
     if(e.key==' ' && user == 1){
         then = Date.now();
         t=0;
-        console.log('t = '+t)
         animate1();
     }else if(e.key==' ' && user == 2){
         then = Date.now();
@@ -117,43 +140,65 @@ document.addEventListener('keydown', (e) => {
     sock.emit('ry2',y2)
     sock.emit('angle1',angle1)
     sock.emit('angle2',angle2)
-    sock.emit('angle21',angle21)
-    sock.emit('angle22',angle22)
     update();
 });
-
-function animate1() {
-    requestAnimationFrame(animate1);
-        now = Date.now();
-        elapsed = now - then;
-        if (elapsed > 10) {
-            console.log('t = '+t)
-            then = now;
-            update();
-            ball1.arc(t*Math.cos(Math.PI*angle2/180),5+t*Math.sin(Math.PI*angle2/180), 5, 0 , 2 * Math.PI);
-            ball1.fill();
-            t+=10;
-            if(7+t*Math.cos(Math.PI*angle2/180)<canvas.width){
-                animate1();
-                console.log('hulle')
-            }
-    }
-}
 function animate2() {
     requestAnimationFrame(animate2);
         now = Date.now();
         elapsed = now - then;
         if (elapsed > 10) {
             then = now;
+            
+            ball2x=1000-t*Math.cos(Math.PI*angle2/180);
+            ball2y=50+y2-5-t*Math.sin(Math.PI*angle2/180);
+
+            if(ball2y<0){
+                ball2y=-ball2y;
+            }
+            if(ball2y> canvas.height){
+                ball2y=canvas.height -(ball2y-canvas.height);
+            }
+            if(ball2y>y1 && ball2y<y1+100 && ball2x<10 && ball2x>-10){
+                score2+=10;
+            }
             update();
-            ball2.arc(-t*Math.cos(Math.PI*angle22/180),-5-t*Math.sin(Math.PI*angle22/180), 5, 0 , 2 * Math.PI);
-            ball2.fill();
+            sock.emit('score2',score2)
+            sock.emit('ball2x',ball2x)
+            sock.emit('ball2y',ball2y)
             t+=10;
-            if(1000-t*Math.cos(Math.PI*angle22/180)>0){
+            if(1000-t*Math.cos(Math.PI*angle2/180)>0){
                 animate2();
             }
     }
 }
+function animate1() {
+    requestAnimationFrame(animate1);
+        now = Date.now();
+        elapsed = now - then;
+        if (elapsed > 10) {
+            then = now;
+            ball1x=t*Math.cos(Math.PI*angle1/180);
+            ball1y=y1+50+t*Math.sin(Math.PI*angle1/180);
+            if(ball1y<0){
+                ball1y=-ball1y;
+            }
+            if(ball1y> canvas.height){
+                ball1y=canvas.height -(ball1y-canvas.height);
+            }
+            if(ball1y>y2 && ball1y<y2+100 && ball1x<canvas.width+10 && ball1x>canvas.width-10){
+                score1+=10;
+            }
+            update();
+            sock.emit('score1',score1)
+            sock.emit('ball1x',ball1x)
+            sock.emit('ball1y',ball1y)
+            t+=10;
+            if(7+t*Math.cos(Math.PI*angle1/180)<canvas.width){
+                animate1();
+            }
+    }
+}
+
 function f1(){
     document.getElementById("user1").hidden = "true";
     document.getElementById("user2").hidden = "true";

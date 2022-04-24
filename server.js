@@ -29,11 +29,23 @@ io.on('connection', (sock) => {
   sock.on('angle2', (text) => {
     io.emit('angle2', text);
   });
-  sock.on('angle21', (text) => {
-    io.emit('angle21', text);
+  sock.on('ball1x', (text) => {
+    io.emit('ball1x', text);
   });
-  sock.on('angle22', (text) => {
-    io.emit('angle22', text);
+  sock.on('ball1y', (text) => {
+    io.emit('ball1y', text);
+  });
+  sock.on('ball2x', (text) => {
+    io.emit('ball2x', text);
+  });
+  sock.on('ball2y', (text) => {
+    io.emit('ball2y', text);
+  });
+  sock.on('score1', (text) => {
+    io.emit('score1', text);
+  });
+  sock.on('score2', (text) => {
+    io.emit('score2', text);
   });
 
 });
