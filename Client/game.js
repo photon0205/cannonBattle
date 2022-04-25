@@ -14,8 +14,8 @@ const app = initializeApp(firebaseConfig);
 const database = getFirestore(app);
 
 const saveHighScore=()=>{
-    database.collection('highscore').
-    add({
+    database.collection('highscore')
+    .add({
         highscore : highscore
     })
     .then(()=>{
@@ -35,15 +35,62 @@ const getHighScore=()=>{
         console.log('High Score = '+highscore);
     })
 }
+const us1 = document.getElementById("user1")
+us1.addEventListener("click",f1)
+
+const us2 = document.getElementById("user2")
+us2.addEventListener("click",f2)
+
 function f1(){
     document.getElementById('user1').hidden = true;
     document.getElementById('user2').hidden = true;
-    user =1;
+    sock.emit("strt1",1)
+    if(strt2==1){
+            user =1;
+            var timeleft=30;
+            var Timer = setInterval(function () {
+            if (timeleft <= 0) {
+                if(score1 > highscore) {
+                    saveHighScore();
+                }
+                clearInterval(Timer);
+            }else{
+                document.getElementById("timeleft").innerHTML = timeleft + " seconds remaining";
+            }
+            console.log(timeleft)
+            
+            timeleft -= 1;
+        }, 1000);
+        console.log("aknjcbjadvjcb")
+    }else{
+        document.getElementById("wait").innerHTML ="Waiting for the other player...."
+    }
+
 }
 function f2(){
     document.getElementById('user1').hidden = true;
     document.getElementById('user2').hidden = true;
-    user =2;
+    sock.emit("strt2",1)
+    if(strt1==1){
+        user =2;
+        var timeleft=30;
+        var Timer = setInterval(function () {
+        if (timeleft <= 0) {
+            if(score1 > highscore) {
+                saveHighScore();
+            }
+            clearInterval(Timer);
+        }else{
+                document.getElementById("timeleft").innerHTML = timeleft + " seconds remaining";
+            }
+            
+        console.log(timeleft)
+        timeleft -= 1;
+    }, 1000);
+    }else{
+        document.getElementById("wait").innerHTML ="Waiting for the other player...."
+    }
+   
 }
 
 var canvas = document.getElementById('canvas');
@@ -61,8 +108,49 @@ u1.fillRect(0,y1, 10, 100)
 v1.fillRect(5,(50+y1),50,10)
 u2.fillRect(1000-10, y2, 10, 100)
 v2.fillRect(1000-50,(50+y2),50,10)
-var now,then,ball1x,ball1y,ball2x,ball2y;
+var now,then,ball1x,ball1y,ball2x,ball2y, strt1,strt2;
 
+const writestrt1 = (text) =>{
+    strt1=text;
+    if(strt2==1){
+        document.getElementById("wait").innerHTML =""
+        var timeleft=30;
+        var Timer = setInterval(function () {
+        if (timeleft <= 0) {
+            if(score1 > highscore) {
+                saveHighScore();
+            }
+            clearInterval(Timer);
+        }else{
+            document.getElementById("timeleft").innerHTML = timeleft + " seconds remaining";
+        }
+        console.log(timeleft)
+        
+        timeleft -= 1;
+    }, 1000);
+    console.log("aknjcbjadvjcb")
+}
+}
+const writestrt2 = (text) =>{
+    strt2=text;
+    if(strt1==1){
+        document.getElementById("wait").innerHTML =""
+        var timeleft=30;
+        var Timer = setInterval(function () {
+        if (timeleft <= 0) {
+            if(score1 > highscore) {
+                saveHighScore();
+            }
+            clearInterval(Timer);
+        }else{
+                document.getElementById("timeleft").innerHTML = timeleft + " seconds remaining";
+            }
+            
+        console.log(timeleft)
+        timeleft -= 1;
+    }, 1000);
+    }
+}
 const writex1 = (text) =>{
     x1=text;
     update();
@@ -113,6 +201,8 @@ const writescore2 = (text) =>{
 }
 
 const sock=io();
+sock.on('strt1',writestrt1)
+sock.on('strt2',writestrt2)
 sock.on('rx1',writex1)
 sock.on('ry1',writey1)
 sock.on('rx2',writex2)
@@ -191,13 +281,19 @@ document.addEventListener('keydown', (e) => {
 function animate2() {
     requestAnimationFrame(animate2);
         now = Date.now();
-        elapsed = now - then;
+        var elapsed = now - then;
         if (elapsed > 10) {
             then = now;
             
             ball2x=1000-t*Math.cos(Math.PI*angle2/180);
             ball2y=50+y2-5-t*Math.sin(Math.PI*angle2/180);
 
+            if(ball2y<0){
+                ball2y=-ball2y;
+            }
+            if(ball2y> canvas.height){
+                ball2y=canvas.height -(ball2y-canvas.height);
+            }
             if(ball2y<0){
                 ball2y=-ball2y;
             }
@@ -220,11 +316,17 @@ function animate2() {
 function animate1() {
     requestAnimationFrame(animate1);
         now = Date.now();
-        elapsed = now - then;
+        var elapsed = now - then;
         if (elapsed > 10) {
             then = now;
             ball1x=t*Math.cos(Math.PI*angle1/180);
             ball1y=y1+50+t*Math.sin(Math.PI*angle1/180);
+            if(ball1y<0){
+                ball1y=-ball1y;
+            }
+            if(ball1y> canvas.height){
+                ball1y=canvas.height -(ball1y-canvas.height);
+            }
             if(ball1y<0){
                 ball1y=-ball1y;
             }
@@ -244,13 +346,3 @@ function animate1() {
             }
     }
 }
-
-
-var Timer = setInterval(function () {
-    if (timeleft <= 0) {
-        if(score1 > highscore) {
-            saveHighScore();
-        }
-    }
-    timeleft -= 1;
-}, 30000);

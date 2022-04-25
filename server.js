@@ -47,6 +47,12 @@ io.on('connection', (sock) => {
   sock.on('score2', (text) => {
     io.emit('score2', text);
   });
+  sock.on('strt1', (text) => {
+    io.emit('strt1', text);
+  });
+  sock.on('strt2', (text) => {
+    io.emit('strt2', text);
+  });
 
 });
 server.on('error', (err) => {
