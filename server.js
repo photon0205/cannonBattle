@@ -58,7 +58,9 @@ io.on('connection', (sock) => {
 server.on('error', (err) => {
     console.error('Server error:', err);
   });
-server.listen(8080, () => {
-    console.log('RPS started on 8080');
-});
+  let port = process.env.PORT;
+  if(port == null || port == ""){
+    port = 8000;
+  }
+server.listen(port);
   
