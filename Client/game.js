@@ -1,5 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js";
-import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-firestore.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyD7ne0LD3U8RCE97zndPXSwmWnNjYcYrpw",
   authDomain: "cannonbattle-85205.firebaseapp.com",
@@ -10,31 +9,19 @@ const firebaseConfig = {
   measurementId: "G-3PVBRG86YD"
 };
 
-const app = initializeApp(firebaseConfig);
-const database = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const database = firebase.firestore();
+database.settings({ timestampsInSnapshots: true }); 
 
-const saveHighScore=()=>{
-    database.collection('highscore')
-    .add({
-        highscore : highscore
-    })
-    .then(()=>{
-        console.log('Data Submitted');
-    })
+
+function getHighScore(doc) {
+   highscore=doc.data().highscore
+   console.log(highscore);
+   document.getElementById("highscore").innerHTML=highscore
 }
-const getHighScore=()=>{
-    database.collection('highscore').get()
-    .then((response)=>{
-        console.log(response.docs.map((item)=>{
-            return item,data();
-        }));
-        highscore = response.docs.map((item)=>{
-            return item,data();
-        })
-        document.getElementById('highscore').innerHTML = highscore;
-        console.log('High Score = '+highscore);
-    })
-}
+
+
+
 const us1 = document.getElementById("user1")
 us1.addEventListener("click",f1)
 
@@ -42,49 +29,89 @@ const us2 = document.getElementById("user2")
 us2.addEventListener("click",f2)
 
 function f1(){
+    database.collection('highscore').orderBy('highscore').get().then(snapshot => {
+        snapshot.docs.forEach(doc => {
+            getHighScore(doc);
+        });
+    });
     document.getElementById('user1').hidden = true;
     document.getElementById('user2').hidden = true;
+    user =1;
     sock.emit("strt1",1)
     if(strt2==1){
-            user =1;
+            
             var timeleft=30;
             var Timer = setInterval(function () {
             if (timeleft <= 0) {
-                if(score1 > highscore) {
-                    saveHighScore();
+                console.log(score1)
+                if(score1 > highscore && score1>score2) {
+                    database.collection('highscore')
+                    .add({
+                        highscore : score1
+                    })
+                    .then(()=>{
+                        console.log('Data Submitted');
+                    })
+                    
+                }
+                if(score1 > score2){
+                    alert("Player 1 ki chapo !!")
+                }else if(score2 > score1){
+                    alert("Player 2 ki chapo !!")
+                }else{
+                    alert("Mubarkaan bai, draw hogya match, chalo dono ek dusre ko chapo dedo")
                 }
                 clearInterval(Timer);
             }else{
                 document.getElementById("timeleft").innerHTML = timeleft + " seconds remaining";
             }
-            console.log(timeleft)
+            
             
             timeleft -= 1;
         }, 1000);
-        console.log("aknjcbjadvjcb")
     }else{
         document.getElementById("wait").innerHTML ="Waiting for the other player...."
     }
 
 }
 function f2(){
+    database.collection('highscore').orderBy('highscore').get().then(snapshot => {
+        snapshot.docs.forEach(doc => {
+            getHighScore(doc);
+        });
+    });
     document.getElementById('user1').hidden = true;
     document.getElementById('user2').hidden = true;
     sock.emit("strt2",1)
+    user =2;
     if(strt1==1){
-        user =2;
+        
         var timeleft=30;
         var Timer = setInterval(function () {
         if (timeleft <= 0) {
-            if(score1 > highscore) {
-                saveHighScore();
+            console.log(score2)
+            if(score2 > highscore && score1<score2) {
+                database.collection('highscore')
+                .add({
+                    highscore : score2
+                })
+                .then(()=>{
+                    console.log('Data Submitted');
+                })
+            }
+            if(score1 > score2){
+                alert("Player 1 ki chapo !!")
+            }else if(score2 > score1){
+                alert("Player 2 ki chapo !!")
+            }else{
+                alert("Mubarkaan bai, draw hogya match, chalo dono ek dusre ko chapo dedo")
             }
             clearInterval(Timer);
         }else{
                 document.getElementById("timeleft").innerHTML = timeleft + " seconds remaining";
             }
             
-        console.log(timeleft)
+        
         timeleft -= 1;
     }, 1000);
     }else{
@@ -94,7 +121,7 @@ function f2(){
 }
 
 var canvas = document.getElementById('canvas');
-var user, highscore;
+var user, highscore=0;
 var u1 = canvas.getContext('2d');
 var v1 = canvas.getContext('2d');
 var y1=0,x1=0,t;
@@ -117,36 +144,59 @@ const writestrt1 = (text) =>{
         var timeleft=30;
         var Timer = setInterval(function () {
         if (timeleft <= 0) {
-            if(score1 > highscore) {
-                saveHighScore();
+            console.log(score1)
+            if(score1 > highscore && score1>score2) {
+                database.collection('highscore')
+                .add({
+                    highscore : score1
+                })
+                .then(()=>{
+                    console.log('Data Submitted');
+                })
+            }
+            if(score1 > score2){
+                alert("Player 1 ki chapo !!")
+            }else if(score2 > score1){
+                alert("Player 2 ki chapo !!")
+            }else{
+                alert("Mubarkaan bai, draw hogya match, chalo dono ek dusre ko chapo dedo")
             }
             clearInterval(Timer);
         }else{
             document.getElementById("timeleft").innerHTML = timeleft + " seconds remaining";
         }
-        console.log(timeleft)
-        
         timeleft -= 1;
     }, 1000);
-    console.log("aknjcbjadvjcb")
 }
 }
 const writestrt2 = (text) =>{
     strt2=text;
     if(strt1==1){
-        document.getElementById("wait").innerHTML =""
+        document.getElementById("wait").innerHTML = ""
         var timeleft=30;
         var Timer = setInterval(function () {
         if (timeleft <= 0) {
-            if(score1 > highscore) {
-                saveHighScore();
+            console.log(score2)
+            if(score2 > highscore && score1<score2) {
+                database.collection('highscore')
+                .add({
+                    highscore : score2
+                })
+                .then(()=>{
+                    console.log('Data Submitted');
+                })
+            }
+            if(score1 > score2){
+                alert("Player 1 ki chapo !!")
+            }else if(score2 > score1){
+                alert("Player 2 ki chapo !!")
+            }else{
+                alert("Mubarkaan bai, draw hogya match, chalo dono ek dusre ko chapo dedo")
             }
             clearInterval(Timer);
         }else{
                 document.getElementById("timeleft").innerHTML = timeleft + " seconds remaining";
             }
-            
-        console.log(timeleft)
         timeleft -= 1;
     }, 1000);
     }
