@@ -133,13 +133,13 @@ var r2 = canvas.getContext('2d');
 var f2 = canvas.getContext('2d');
 var ball1 = canvas.getContext('2d');
 var ball2 = canvas.getContext('2d');
-var y2=0,x2=0,s1=10,s2=20;
+var y2=0,x2=0,s1=0,s2=0;
 var angle1=0,angle2=0,score1=0,score2=0;
 u1.fillRect(0,y1, 10, 100)
 r1.strokeRect(400-10,10, 100, 10)
-f1.fillRect(400-10+s1,10+1,100-s1,8)
+f1.fillRect(400-10+score1,10+1,100-score1,8)
 r2.strokeRect(500+10,10, 100, 10)
-f2.fillRect(500+10,10+1,100-s2,8)
+f2.fillRect(500+10,10+1,100-score2,8)
 v1.fillRect(5,(50+y1),50,10)
 u2.fillRect(1000-10, y2, 10, 100)
 v2.fillRect(1000-50,(50+y2),50,10)
@@ -288,6 +288,10 @@ function update(){
     v2.fillRect(x2-50,0,50,10) 
     v2.rotate(-angle2*Math.PI/180)
     v2.setTransform(1, 0, 0, 1, 0, 0);
+    r1.strokeRect(400-10,10, 100, 10)
+    f1.fillRect(400-10+score2,10+1,100-score2,8)
+    r2.strokeRect(500+10,10, 100, 10)
+    f2.fillRect(500+10,10+1,100-score1,8)
     ball1.arc(ball1x,ball1y, 5, 0 , 2 * Math.PI);
     ball1.fill();
     ball2.arc(ball2x,ball2y, 5, 0 , 2 * Math.PI);
@@ -359,10 +363,6 @@ function animate2() {
             }
             if(ball2y>y1 && ball2y<y1+100 && ball2x<10 && ball2x>-10){
                 score2+=10;
-            }
-            if(ball2y==ball1y && ball1x == ball2x ){
-                ball2x = 10000
-                ball1x = 10000
             }
             update();
             sock.emit('score2',score2)
