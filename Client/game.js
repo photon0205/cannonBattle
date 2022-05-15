@@ -133,7 +133,7 @@ var r2 = canvas.getContext('2d');
 var f2 = canvas.getContext('2d');
 var ball1 = canvas.getContext('2d');
 var ball2 = canvas.getContext('2d');
-var y2=0,x2=0,s1=0,s2=0;
+var y2=0,x2=0;
 var angle1=0,angle2=0,score1=0,score2=0;
 u1.fillRect(0,y1, 10, 100)
 r1.strokeRect(400-10,10, 100, 10)
@@ -169,6 +169,7 @@ const writestrt1 = (text) =>{
             }else{
                 alert("Mubarkaan bai, draw hogya match, chalo dono ek dusre ko chapo dedo")
             }
+
             clearInterval(Timer);
         }else{
             document.getElementById("timeleft").innerHTML = timeleft + " seconds remaining";
@@ -353,7 +354,7 @@ function animate2() {
                 ball2y=-ball2y;
             }
             if(ball2y> canvas.height){
-                ball2y=canvas.height -(ball2y-canvas.height);
+                ball2y=canvas.height - (ball2y-canvas.height);
             }
             if(ball2y<0){
                 ball2y=-ball2y;
