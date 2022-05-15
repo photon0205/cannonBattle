@@ -124,14 +124,22 @@ var canvas = document.getElementById('canvas');
 var user, highscore=0;
 var u1 = canvas.getContext('2d');
 var v1 = canvas.getContext('2d');
+var r1 = canvas.getContext('2d');
+var f1 = canvas.getContext('2d');
 var y1=0,x1=0,t;
 var v2 = canvas.getContext('2d');
 var u2 = canvas.getContext('2d');
+var r2 = canvas.getContext('2d');
+var f2 = canvas.getContext('2d');
 var ball1 = canvas.getContext('2d');
 var ball2 = canvas.getContext('2d');
-var y2=0,x2=0;
+var y2=0,x2=0,s1=10,s2=20;
 var angle1=0,angle2=0,score1=0,score2=0;
 u1.fillRect(0,y1, 10, 100)
+r1.strokeRect(400-10,10, 100, 10)
+f1.fillRect(400-10+s1,10+1,100-s1,8)
+r2.strokeRect(500+10,10, 100, 10)
+f2.fillRect(500+10,10+1,100-s2,8)
 v1.fillRect(5,(50+y1),50,10)
 u2.fillRect(1000-10, y2, 10, 100)
 v2.fillRect(1000-50,(50+y2),50,10)
@@ -329,7 +337,6 @@ document.addEventListener('keydown', (e) => {
     update();
 });
 function animate2() {
-    requestAnimationFrame(animate2);
         now = Date.now();
         var elapsed = now - then;
         if (elapsed > 10) {
@@ -353,46 +360,56 @@ function animate2() {
             if(ball2y>y1 && ball2y<y1+100 && ball2x<10 && ball2x>-10){
                 score2+=10;
             }
+            if(ball2y==ball1y && ball1x == ball2x ){
+                ball2x = 10000
+                ball1x = 10000
+            }
             update();
             sock.emit('score2',score2)
             sock.emit('ball2x',ball2x)
             sock.emit('ball2y',ball2y)
             t+=10;
             if(1000-t*Math.cos(Math.PI*angle2/180)>0){
-                animate2();
+                requestAnimationFrame(animate2);
             }
     }
+    requestAnimationFrame(animate2);
 }
+
 function animate1() {
-    requestAnimationFrame(animate1);
-        now = Date.now();
-        var elapsed = now - then;
-        if (elapsed > 10) {
-            then = now;
-            ball1x=t*Math.cos(Math.PI*angle1/180);
-            ball1y=y1+50+t*Math.sin(Math.PI*angle1/180);
-            if(ball1y<0){
-                ball1y=-ball1y;
-            }
-            if(ball1y> canvas.height){
-                ball1y=canvas.height -(ball1y-canvas.height);
-            }
-            if(ball1y<0){
-                ball1y=-ball1y;
-            }
-            if(ball1y> canvas.height){
-                ball1y=canvas.height -(ball1y-canvas.height);
-            }
-            if(ball1y>y2 && ball1y<y2+100 && ball1x<canvas.width+10 && ball1x>canvas.width-10){
-                score1+=10;
-            }
-            update();
-            sock.emit('score1',score1)
-            sock.emit('ball1x',ball1x)
-            sock.emit('ball1y',ball1y)
-            t+=10;
-            if(7+t*Math.cos(Math.PI*angle1/180)<canvas.width){
-                animate1();
-            }
-    }
+    now = Date.now();
+    var elapsed = now - then;
+    if (elapsed > 10) {
+        then = now;
+        ball1x=t*Math.cos(Math.PI*angle1/180);
+        ball1y=y1+50+t*Math.sin(Math.PI*angle1/180);
+        if(ball1y<0){
+            ball1y=-ball1y;
+        }
+        if(ball1y> canvas.height){
+            ball1y=canvas.height -(ball1y-canvas.height);
+        }
+        if(ball1y<0){
+            ball1y=-ball1y;
+        }
+        if(ball1y> canvas.height){
+            ball1y=canvas.height -(ball1y-canvas.height);
+        }
+        if(ball1y>y2 && ball1y<y2+100 && ball1x<canvas.width+10 && ball1x>canvas.width-10){
+            score1+=10;
+        }
+        if(ball2y==ball1y && ball1x == ball2x ){
+            ball2x = 10000
+            ball1x = 10000
+        }
+        update();
+        sock.emit('score1',score1)
+        sock.emit('ball1x',ball1x)
+        sock.emit('ball1y',ball1y)
+        t+=10;
+        if(7+t*Math.cos(Math.PI*angle1/180)<canvas.width){
+            requestAnimationFrame(animate1);
+        }
+}
+requestAnimationFrame(animate1);
 }
