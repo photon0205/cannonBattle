@@ -1,6 +1,9 @@
 # cannonBattle
 
+Hosted on : http://cannon-battle.herokuapp.com/game.html
+
 #Introduction
+
 This is a Multiplayer web-game in which you have to launch a cannon in order to strike the opponent and the one with most number of strikes will win having more points.
 I have used web-sockets to make this Multiplayer. Also you can see the highscore going on in the game.
 
